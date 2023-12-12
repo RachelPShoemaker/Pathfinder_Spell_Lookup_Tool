@@ -122,5 +122,6 @@ while True:
     query = query + " site:2e.aonprd.com"
     print()
     results = search(query, tld="com", num=1, start=0, stop=1, pause=2)
-    for i in results:
-        scrape_spell(i)
+    for url in results:
+        if("https://2e.aonprd.com/Spells.aspx?ID=" in url): scrape_spell(url)
+        else: print("Spell not found. Please try again.")

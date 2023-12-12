@@ -92,6 +92,21 @@ class TestScraper(unittest.TestCase):
         # # another edge case : 'https://2e.aonprd.com/Spells.aspx?ID=902'  annihilation wave == two actions to 2 rounds
         # # 'https://2e.aonprd.com/Spells.aspx?ID=934'
 
+    def test_scrape_traits(self):
+        # I tested for the following edge cases: No school of magic, one school of magic (a spell can't have multiple schools) no traits, one trait, several traits
+        # TODO: test for every school of magic, which includes "Abjuration","Conjuration","Divination","Enchantment","Evocation","Illusion","Necromancy","Transmutation"
+        self.assertEqual(Data_Scraper_Draft_2.scrape_traits(self.soup_acid_splash), ['Evocation', ['Acid', 'Attack', 'Cantrip']])
+        self.assertEqual(Data_Scraper_Draft_2.scrape_traits(self.soup_alarm), ['Abjuration',[]])
+        self.assertEqual(Data_Scraper_Draft_2.scrape_traits(self.soup_animate_dead),['Necromancy',[]])
+        self.assertEqual(Data_Scraper_Draft_2.scrape_traits(self.soup_bread_crumbs),['Abjuration', []])
+        self.assertEqual(Data_Scraper_Draft_2.scrape_traits(self.soup_chill_touch),['Necromancy', ['Cantrip', 'Negative']])
+        self.assertEqual(Data_Scraper_Draft_2.scrape_traits(self.soup_choir), ['Evocation', ['Sonic']])
+        self.assertEqual(Data_Scraper_Draft_2.scrape_traits(self.soup_chrom_armor), ['Abjuration', ['Light']])
+        self.assertEqual(Data_Scraper_Draft_2.scrape_traits(self.soup_chromatic_image), ['Illusion', ['Visual']])
+        self.assertEqual(Data_Scraper_Draft_2.scrape_traits(self.soup_deep_breath), ['', ['Air', 'Cantrip', 'Manipulate']])
+        self.assertEqual(Data_Scraper_Draft_2.scrape_traits(self.soup_dino_fort), ['Conjuration', ['Rare']])
+
+
 if __name__ == '__main__':
     unittest.main()
         
