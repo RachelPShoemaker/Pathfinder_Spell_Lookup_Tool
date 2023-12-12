@@ -11,7 +11,7 @@ def getSoup(website):
 class TestScraper(unittest.TestCase):
     def setUp(self):
         self.soup_repulsion = getSoup('https://2e.aonprd.com/Spells.aspx?ID=254')
-        self.soup_worm_sting = getSoup('https://2e.aonprd.com/Spells.aspx?ID=242')
+        self.soup_worm_sting = getSoup('https://2e.aonprd.com/Spells.aspx?ID=242') # NOTE: prints deities wrong
         self.soup_raise_dead = getSoup('https://2e.aonprd.com/Spells.aspx?ID=243')
         self.soup_dino_fort = getSoup('https://2e.aonprd.com/Spells.aspx?ID=1099')
         self.soup_acid_splash = getSoup('https://2e.aonprd.com/Spells.aspx?ID=3')
