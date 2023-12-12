@@ -117,12 +117,16 @@ def scrape_spell(website):
     spell_obj.print_spell()
 
 while True:
-    query = input("Enter spell name (To exit, enter \"x\"):\n")
-    if(query == "X" or query == "x"): break
-    query = query + " site:2e.aonprd.com"
-    print()
-    results = search(query, tld="com", num=1, start=0, stop=1, pause=2)
-    # NOTE: if there are no search results, the error message doesn't display but it does allow the user to enter a new spell.
-    for url in results:
-        if("https://2e.aonprd.com/Spells.aspx?ID=" in url): scrape_spell(url)
-        else: print("Spell not found. Please try again.")
+    user_input = input("Enter spell name (To exit, enter \"x\"):\n")
+    if(user_input == "X" or user_input == "x"): break
+    result_found = False
+    query = user_input + " site:2e.aonprd.com"
+    result = search(query, tld="com", num=1, start=0, stop=1, pause=2)
+    for url in result: # the search function returns a list, even when instructed to find only one result.
+        result_found = True
+        if("https://2e.aonprd.com/Spells.aspx?ID=" in url):
+            print()
+            scrape_spell(url)
+        else:
+            print("Spell doesn't exist.\n")
+    if(not result_found): print("Spell doesn't exist.\n")
