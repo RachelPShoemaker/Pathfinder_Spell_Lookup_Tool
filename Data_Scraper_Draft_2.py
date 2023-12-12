@@ -4,22 +4,33 @@ import requests
 from spell import Spell
 
 def scrape_actions(soup):
-    if(soup.find(string="[reaction]") is not None): return "Reaction"
-    elif(soup.find(title="Single Action") is not None):
-        if(soup.find(title="Three Actions") is not None): return "One to three actions"
-        else: return "Single action"
-    elif(soup.find(title="Two Actions") is not None):
-        if(soup.find(title="Three Actions") is not None): return "Two or three actions"
-        else: return "Two actions"
-        # TODO: add "Two actions to two rounds"
-    elif(soup.find(title="Three Actions") is not None): return "Three actions"
+    VALID_TEXT = [" ", "[reaction]", "[one-action]", "[two-actions]", "[three-actions]", "  to  "]
+    dom_element = soup.find(string="Cast")
+    dom_element = dom_element.next
+    action_text = []
+    while(dom_element.get_text() in VALID_TEXT or dom_element.get_text == ""):
+        if(dom_element.get_text() != " "): action_text.append(dom_element.get_text())
+        dom_element = dom_element.next
+    action_text = list(set(action_text))
+    for i in action_text:
+        print(i)
+    return "Hello"
+    # if(soup.find(string="[reaction]") is not None): return "Reaction"
+    # elif(soup.find(title="Single Action") is not None):
+    #     if(soup.find(title="Three Actions") is not None): return "One to three actions"
+    #     else: return "Single action"
+    # elif(soup.find(title="Two Actions") is not None):
+    #     if(soup.find(title="Three Actions") is not None): return "Two or three actions"
+    #     else: return "Two actions"
+    #     # TODO: add "Two actions to two rounds"
+    # elif(soup.find(title="Three Actions") is not None): return "Three actions"
 
-    # TODO: find a way to get rid of the two spaces after Cast Time:
-    else: # This case is for spells that have a cast time.
-        cast = soup.find(string="Cast")
-        cast = cast.next.get_text()
-        cast = cast[:-2] # Last two chars are ' ' and '(' 
-        return "Cast Time:" + cast
+    # # TODO: find a way to get rid of the two spaces after Cast Time:
+    # else: # This case is for spells that have a cast time.
+    #     cast = soup.find(string="Cast")
+    #     cast = cast.next.get_text()
+    #     cast = cast[:-2] # Last two chars are ' ' and '(' 
+    #     return "Cast Time:" + cast
 
 def scrape_traits(soup):
     SCHOOLS = ["Abjuration","Conjuration","Divination","Enchantment","Evocation","Illusion","Necromancy","Transmutation"]
