@@ -3,34 +3,36 @@ from bs4 import BeautifulSoup
 import requests
 from spell import Spell
 
+def clean_action_text(text):
+    text = text.replace('[', '')
+    text = text.replace(']', '')
+    text = text.replace('  ', ' ')
+    text = text.replace('-', ' ')
+    return text
+
+def clean_spaces(text):
+    return "WIP"
+
 def scrape_actions(soup):
-    VALID_TEXT = [" ", "[reaction]", "[one-action]", "[two-actions]", "[three-actions]", "  to  "]
+    VALID_TEXT = [" ", "[reaction]", "[one-action]", "[two-actions]", "[three-actions]", "  to  ", "  or  ", "  to 2 rounds"]
     dom_element = soup.find(string="Cast")
     dom_element = dom_element.next
-    action_text = []
-    while(dom_element.get_text() in VALID_TEXT or dom_element.get_text == ""):
-        if(dom_element.get_text() != " "): action_text.append(dom_element.get_text())
+    dom_str = dom_element.get_text() # Stores the dom text. It updates after each iteration.
+    action_text = "" # Each valid dom iteration is appended to this.
+    prev_text = "" # This variable is used to prevent duplicate text.
+    while(dom_str in VALID_TEXT or dom_str == ""):
+        if(dom_str != " " and dom_str != prev_text): 
+            action_text += dom_str
+            prev_text = dom_str
         dom_element = dom_element.next
-    action_text = list(set(action_text))
-    for i in action_text:
-        print(i)
-    return "Hello"
-    # if(soup.find(string="[reaction]") is not None): return "Reaction"
-    # elif(soup.find(title="Single Action") is not None):
-    #     if(soup.find(title="Three Actions") is not None): return "One to three actions"
-    #     else: return "Single action"
-    # elif(soup.find(title="Two Actions") is not None):
-    #     if(soup.find(title="Three Actions") is not None): return "Two or three actions"
-    #     else: return "Two actions"
-    #     # TODO: add "Two actions to two rounds"
-    # elif(soup.find(title="Three Actions") is not None): return "Three actions"
-
-    # # TODO: find a way to get rid of the two spaces after Cast Time:
-    # else: # This case is for spells that have a cast time.
-    #     cast = soup.find(string="Cast")
-    #     cast = cast.next.get_text()
-    #     cast = cast[:-2] # Last two chars are ' ' and '(' 
-    #     return "Cast Time:" + cast
+        dom_str = dom_element.get_text()
+    if(action_text == ""): # if action_text is empty, that means this spell has a cast time instead of actions.
+        cast = soup.find(string="Cast")
+        cast = cast.next.get_text()
+        cast = cast[1:-2] # Cuts off unnecessary text. The first char is ' ' and the Last two chars are ' ' and '(' 
+        return "Cast Time:" + cast
+    action_text = clean_action_text(action_text)
+    return action_text 
 
 def scrape_traits(soup):
     SCHOOLS = ["Abjuration","Conjuration","Divination","Enchantment","Evocation","Illusion","Necromancy","Transmutation"]
