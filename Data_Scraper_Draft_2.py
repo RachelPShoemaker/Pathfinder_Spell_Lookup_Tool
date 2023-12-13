@@ -60,19 +60,6 @@ def scrape_traditions(soup):
     all_primal_links = soup.find_all(href='SpellLists.aspx?Tradition=4')
     if(len(all_primal_links) > 1): tradition_list.append("Primal")
     return tradition_list
-
-def scrape_deities(soup):
-    deities_element = soup.find(string="Deities")
-    deities_list = []
-    prev_deities = ""
-    if(deities_element is not None):
-        while(deities_element.next.name != 'br'):
-            deities_element = deities_element.next
-            deities_str = deities_element.get_text()
-            if(deities_str != "" and prev_deities != deities_str): 
-                deities_list.append(deities_str)
-                prev_deities = deities_str
-    return deities_list
     
 def scrape_cast_type(soup):
     cast_type = []
