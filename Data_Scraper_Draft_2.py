@@ -10,8 +10,10 @@ def clean_action_text(text):
     text = text.replace('-', ' ')
     return text
 
-def clean_spaces(text):
-    return "WIP"
+def clean_other_text(text):
+    text = text.replace(';', '')
+    text = text.strip()
+    return text
 
 def scrape_actions(soup):
     VALID_TEXT = [" ", "[reaction]", "[one-action]", "[two-actions]", "[three-actions]", "  to  ", "  or  ", "  to 2 rounds"]
@@ -99,8 +101,11 @@ def scrape_description(soup):
 
 def scrape_other(label, soup):
     dom_element = soup.find(string=label)
-    if(dom_element is not None): return dom_element.next.get_text()
-    else: return " "
+    if(dom_element is not None):
+        result = clean_other_text(dom_element.next.get_text())
+        if(result == ''): result = 'See handbook for details.' 
+        return result
+    else: return ""
 
 def scrape_spell(website):
     result = requests.get(website)
