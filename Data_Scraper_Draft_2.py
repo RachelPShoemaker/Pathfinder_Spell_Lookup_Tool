@@ -1,7 +1,13 @@
 from googlesearch import search
 from bs4 import BeautifulSoup
 import requests
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Image
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus.tables import Table, TableStyle
+from reportlab.lib import colors
+from reportlab.lib.units import inch
 from spell import Spell
+
 
 def clean_action_text(text):
     text = text.replace('[', '')
@@ -74,7 +80,7 @@ def scrape_description(soup):
     description_element = hr_tags[2] # Stores DOM element. The spell description text starts after the 3rd hr break on the website.
     description_str = description_element.get_text()  # Value updates after each iteration.
     description_text = description_str # Stores the entire description text. Each valid "description_str" update will be appended to this. 
-    prev_description = description_str # This will be used to prevent duplicate text. NOTE: Doesn't work for unordered lists.
+    prev_description = description_str # This will be used to prevent duplicate text.
     # This while-loop lets the program scrape the rest of the text I need.
     while(description_element.next.name != 'div'):
         description_element = description_element.next
@@ -108,7 +114,6 @@ def scrape_spell(website):
     spell_obj.school = trait_list[0]
     spell_obj.traits = trait_list[1]
     spell_obj.traditions = scrape_traditions(soup)
-    spell_obj.deities = scrape_deities(soup)
     spell_obj.cast = scrape_cast_type(soup)
     spell_obj.requirement = scrape_other("Requirements",soup)
     spell_obj.trigger = scrape_other("Trigger",soup)
@@ -119,19 +124,72 @@ def scrape_spell(website):
     spell_obj.duration = scrape_other("Duration",soup)
     spell_obj.save_throw = scrape_other("Saving Throw",soup)
     spell_obj.description = scrape_description(soup)
-    spell_obj.print_spell()
+    return spell_obj
 
+
+def formatTable(elems, spell):
+    table = Table(spell)
+    style = TableStyle([
+        ('ALIGN', (0,0), (-1,-1), 'CENTER')
+    ])
+
+    rowLen = len(spell)
+    for i in range(0, rowLen):
+        if(i % 2 == 0):
+            background_color = colors.burlywood
+        else:
+            background_color = colors.beige
+        table_style = TableStyle(
+            [('BACKGROUND', (0,i), (-1,i), background_color)]
+        )
+        table.setStyle(table_style)
+    
+    table_style = TableStyle(
+        [
+            ('BOX', (0,0), (-1, -1), 2, colors.black),
+            ('LINEBEFORE', (1,0), (-1,-1), 2, colors.gray)
+        ]
+    )
+    table.setStyle(table_style)
+    elems.append(table)
+
+
+#----------Main ----------------------------
+
+spells = []
+spell_descriptions = []
+
+# User Interface
 while True:
     user_input = input("Enter spell name (To exit, enter \"x\"):\n")
     if(user_input == "X" or user_input == "x"): break
-    result_found = False
     query = user_input + " site:2e.aonprd.com"
-    result = search(query, tld="com", num=1, start=0, stop=1, pause=2)
+    result = search(query, num_results=1)
     for url in result: # the search function returns a list, even when instructed to find only one result.
-        result_found = True
         if("https://2e.aonprd.com/Spells.aspx?ID=" in url):
             print()
-            scrape_spell(url)
-        else:
-            print("Spell doesn't exist.\n")
-    if(not result_found): print("Spell doesn't exist.\n")
+            spell_obj = scrape_spell(url)
+            spell_obj.print_spell()
+            if(input("Do you wish to add this spell to your spell sheet? (Enter Y or N):   ") == 'Y'):
+                spells.append(spell_obj.toTable())
+                spell_descriptions.append(spell_obj.description)
+                print("Spell added")
+
+# Generates PDF before exiting
+if(len(spells) > 0):
+    fileName = 'SpellSheet.pdf'
+    pdf = SimpleDocTemplate(
+        fileName,
+        pagesize=letter,
+        rightMargin=12,
+        leftMargin=12,
+        topMargin=12,
+        bottomMargin=6
+    )
+    elems = []
+    elems.append(Image('Pathfinder_logo.png',5*inch, 2.2*inch))
+    for i in range(0, len(spells)):
+        formatTable(elems,spells[i])
+        elems.append(Paragraph('Description'))
+        elems.append(Paragraph(spell_descriptions[i]))
+    pdf.build(elems)
