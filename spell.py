@@ -35,3 +35,21 @@ class Spell:
         if(self.save_throw != ""): print('Saving throw:',self.save_throw)
         print('\n',self.description)
         print("------------------------------------")
+    
+    def listToString(self, my_list):
+        return ', '.join(my_list)
+    
+    def toTable(self):
+        spellTable = [
+            ['Name', 'Traits'],
+            [self.name, self.listToString(self.traits)],
+            ['Magic Tradition', 'School', 'Cast'],
+            [self.listToString(self.traditions), self.school, self.listToString(self.cast)],
+            ['Requirement', 'Range', 'Target'],
+            [self.requirement, self.range, self.target],
+            ['Area', 'Duration', 'Saving throw'],
+            [self.area, self.duration, self.save_throw]
+            # ['Description'],
+            # [self.description]
+        ]
+        return spellTable
